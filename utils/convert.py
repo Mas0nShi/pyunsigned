@@ -82,45 +82,45 @@ def ROR(data, shift, size):
     return body + remains
 
 
+
 class BYTE:
     _size = SIZE_BYTE
     @staticmethod
     def _convert(obj): return obj._value if isinstance(obj, BYTE) else obj
-
-    def _type_convert(self, right): return self.__class__ if self.size() > right.size() else right.__class__
     @staticmethod
     def _equation(obj): return obj._value if isinstance(obj, (BYTE, WORD, DWORD, QWORD, OWORD)) else obj
-    @staticmethod
-    def size(): return SIZE_BYTE
+
+    def _type_convert(self, other): return self.__class__ if self._size > other._size else other.__class__
 
     def __init__(self, v): self._value = v & MAX_BYTE
     def __int__(self): return self._value
     def __str__(self): return self.hex() if Config.print_hex else str(self._value)
     def __repr__(self): return f'BYTE({self.__str__()})'
-    def __add__(self, other): return BYTE(self._value + self._convert(other))
-    def __sub__(self, other): return BYTE(self._value - self._convert(other))
-    def __mul__(self, other): return BYTE(self._value * self._convert(other))
-    def __floordiv__(self, other): return BYTE(self._value // self._convert(other))
-    def __truediv__(self, other): return BYTE(self._value // self._convert(other))
-    def __mod__(self, other): return BYTE(self._value % self._convert(other))
-    def __divmod__(self, other): return BYTE(divmod(self._value, self._convert(other)))
-    def __and__(self, other): return BYTE(self._value & self._convert(other))
-    def __or__(self, other): return BYTE(self._value | self._convert(other))
-    def __xor__(self, other): return BYTE(self._value ^ self._convert(other))
+    def __add__(self, other): return self._type_convert(other)(self._value + self._convert(other))
+    def __sub__(self, other): return self._type_convert(other)(self._value - self._convert(other))
+    def __mul__(self, other): return self._type_convert(other)(self._value * self._convert(other))
+    def __floordiv__(self, other): return self._type_convert(other)(self._value // self._convert(other))
+    def __truediv__(self, other): return self._type_convert(other)(self._value // self._convert(other))
+    def __mod__(self, other): return self._type_convert(other)(self._value % self._convert(other))
+    def __divmod__(self, other): return self._type_convert(other)(divmod(self._value, self._convert(other)))
+    def __and__(self, other): return self._type_convert(other)(self._value & self._convert(other))
+    def __or__(self, other): return self._type_convert(other)(self._value | self._convert(other))
+    def __xor__(self, other): return self._type_convert(other)(self._value ^ self._convert(other))
+
     def __invert__(self): return BYTE(~self._value)
     def __lshift__(self, other): return BYTE(self._value << self._convert(other))
     def __rshift__(self, other): return BYTE(self._value >> self._convert(other))
 
-    def __radd__(self, other): return BYTE(self._convert(other) + self._value)
-    def __rsub__(self, other): return BYTE(self._convert(other) - self._value)
-    def __rmul__(self, other): return BYTE(self._convert(other) * self._value)
-    def __rfloordiv__(self, other): return BYTE(self._convert(other) // self._value)
-    def __rtruediv__(self, other): return BYTE(self._convert(other) // self._value)
-    def __rmod__(self, other): return BYTE(self._convert(other) % self._value)
-    def __rdivmod__(self, other): return tuple(BYTE(_v) for _v in divmod(self._convert(other), self._value))  # TODO: Has Design Issue.
-    def __rand__(self, other): return BYTE(self._convert(other) & self._value)
-    def __ror__(self, other): return BYTE(self._convert(other) | self._value)
-    def __rxor__(self, other): return BYTE(self._convert(other) ^ self._value)
+    def __radd__(self, other): return self._type_convert(other)(self._convert(other) + self._value)
+    def __rsub__(self, other): return self._type_convert(other)(self._convert(other) - self._value)
+    def __rmul__(self, other): return self._type_convert(other)(self._convert(other) * self._value)
+    def __rfloordiv__(self, other): return self._type_convert(other)(self._convert(other) // self._value)
+    def __rtruediv__(self, other): return self._type_convert(other)(self._convert(other) // self._value)
+    def __rmod__(self, other): return self._type_convert(other)(self._convert(other) % self._value)
+    def __rdivmod__(self, other): return tuple(self._type_convert(other)(_v) for _v in divmod(self._convert(other), self._value))  # TODO: Has Design Issue.
+    def __rand__(self, other): return self._type_convert(other)(self._convert(other) & self._value)
+    def __ror__(self, other): return self._type_convert(other)(self._convert(other) | self._value)
+    def __rxor__(self, other): return self._type_convert(other)(self._convert(other) ^ self._value)
     def __rlshift__(self, other): return BYTE(self._convert(other) << self._value)
     def __rrshift__(self, other): return BYTE(self._convert(other) >> self._value)
     # bool
@@ -146,6 +146,7 @@ class BYTE:
 
 
 class WORD:
+    _size = SIZE_WORD
     @staticmethod
     def _convert(obj): return obj.value() if isinstance(obj, WORD) else obj
     @staticmethod
@@ -206,6 +207,7 @@ class WORD:
 
 
 class DWORD:
+    _size = SIZE_DWORD
     @staticmethod
     def _convert(obj): return obj.value() if isinstance(obj, DWORD) else obj
     @staticmethod
@@ -402,7 +404,7 @@ if __name__ == '__main__':
     prpr(QWORD(0x222434343))
     prpr(DWORD(QWORD(0x134444) + 100000))
 
-    prpr(QWORD(0x222434343).__class__(233))
+    prpr(BYTE(0x23) + DWORD(344))
 
 
 
