@@ -259,13 +259,15 @@ class BaseIntType:
     def __hex__(self): return hex(self.value)
 
     def hex(self): return self.__hex__()
-    def bit_ror(self, other): return BYTE(ROR(self.value, self._convert(other), SIZE_BYTE))
-    def bit_rol(self, other): return BYTE(ROL(self.value, self._convert(other), SIZE_BYTE))
 
-    def toWORD(self): return WORD(self.value)
-    def toDWORD(self): return DWORD(self.value)
-    def toQWORD(self): return QWORD(self.value)
-    def toOWORD(self): return OWORD(self.value)
+    def bit_ror(self, other):
+        portion = partial(ROR, size=getattr(self.type, 'size') * 8)
+        return _binaryOperation(self, other, portion)
+
+    def bit_rol(self, other):
+        portion = partial(ROL, size=getattr(self.type, 'size') * 8)
+        return _binaryOperation(self, other, portion)
+
 
 
 class BYTE:
