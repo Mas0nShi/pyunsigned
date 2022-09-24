@@ -67,20 +67,19 @@ class IntTypeInfo:
 
 
 class _Conversions:
-    Type = ['BYTE', 'WORD', 'DWORD', 'QWORD', 'OWORD']
-
-    tBYTE: BaseIntType = getattr(IntTypeInfo, 'BYTE')
-    tWORD: BaseIntType = getattr(IntTypeInfo, 'WORD')
-    tDWORD: BaseIntType = getattr(IntTypeInfo, 'DWORD')
-    tQWORD: BaseIntType = getattr(IntTypeInfo, 'QWORD')
-    tOWORD: BaseIntType = getattr(IntTypeInfo, 'OWORD')
-
-    IntN: callable = lambda self, v, n, t: (v >> (n * getattr(self, f't{t}').size * 8)) & getattr(self, f't{t}').max
+    @staticmethod
+    def BYTEn(v, n): return (v >> (n * IntTypeInfo.BYTE.size * 8)) & IntTypeInfo.BYTE.max
+    @staticmethod
+    def WORDn(v, n): return (v >> (n * IntTypeInfo.WORD.size * 8)) & IntTypeInfo.WORD.max
+    @staticmethod
+    def DWORDn(v, n): return (v >> (n * IntTypeInfo.DWORD.size * 8)) & IntTypeInfo.DWORD.max
+    @staticmethod
+    def QWORDn(v, n): return (v >> (n * IntTypeInfo.QWORD.size * 8)) & IntTypeInfo.QWORD.max
+    @staticmethod
+    def OWORDn(v, n): return (v >> (n * IntTypeInfo.QWORD.size * 8)) & IntTypeInfo.QWORD.max
 
     def __init__(self):
-        for t in self.__class__.Type:
-            # BYTEn WORDn ...
-            setattr(self.__class__, f"{t}n", partial(self.IntN, t=t))
+        pass # TODO: not impl.
 
 
 Conversions = _Conversions()
@@ -194,9 +193,9 @@ def _baseBinaryOperation(base, other, binaryOp: callable, r: bool = False):
     cast_other = _typeCast(base, other)
     # TODO: e.g. radd and add.
     if r:
-        result = binaryOp(cast_other.value, base.value)
+        result = binaryOp(cast_other.int, base.int)
     else:
-        result = binaryOp(base.value, cast_other.value)
+        result = binaryOp(base.int, cast_other.int)
     # TODO: divmod
     if isinstance(result, tuple):
         return (_typeCast(base, i) for i in result)
@@ -210,16 +209,16 @@ _rbinaryOperation = partial(_baseBinaryOperation, r=True)
 
 def _unaryOperation(self, unaryOp: callable):
     assert issubclass(self.__class__, BaseInt)
-    return self.__class__(unaryOp(self.value))
+    return self.__class__(unaryOp(self.int))
 
 
 class BaseInt:
     def __init__(self, v):
         self.type = getattr(IntTypeInfo, self.__class__.__name__)
-        self.value = int(v) & getattr(self.type, 'max')
+        self.int = int(v) & getattr(self.type, 'max')
 
-    def __int__(self): return self.value
-    def __str__(self): return Config.print(self.value)
+    def __int__(self): return self.int
+    def __str__(self): return Config.print(self.int)
     def __repr__(self): return f'{self.__class__.__name__}({self.__str__()})'
 
     def __add__(self, other): return _binaryOperation(self, other, operator.add)
@@ -258,10 +257,10 @@ class BaseInt:
     def __lt__(self, other): return _binaryOperation(self, other, operator.lt)
     def __ne__(self, other): return _binaryOperation(self, other, operator.ne)
     # index [1, 2, 3, 4][Type[BaseInt]]
-    def __index__(self): return self.value
+    def __index__(self): return self.int
     # function
-    def __hex__(self): return hex(self.value)
-    def byteN(self): self.__class__()
+    def __hex__(self): return hex(self.int)
+    def byteN(self): pass  # TODO: not impl.
     def hex(self): return self.__hex__()
 
     def bit_ror(self, other):
