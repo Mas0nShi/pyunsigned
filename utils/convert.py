@@ -76,7 +76,7 @@ class _Conversions:
     @staticmethod
     def QWORDn(v, n): return (v >> (n * IntTypeInfo.QWORD.size * 8)) & IntTypeInfo.QWORD.max
     @staticmethod
-    def OWORDn(v, n): return (v >> (n * IntTypeInfo.QWORD.size * 8)) & IntTypeInfo.QWORD.max
+    def OWORDn(v, n): return (v >> (n * IntTypeInfo.OWORD.size * 8)) & IntTypeInfo.OWORD.max
 
     def __init__(self):
         pass # TODO: not impl.
@@ -300,8 +300,6 @@ class BaseIntList(list):
 
 class BYTEList(BaseIntList):
     def __init__(self, v): super(BYTEList, self).__init__(v, BYTE)
-
-
 
 
 class WORDList(BaseIntList):
